@@ -1,0 +1,341 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<body>
+<center>
+	<div id="screen">
+		<div id="projectile"><img src="projectile.png"></img></div>
+		<div id="ship"></div>
+	</div>
+	<div id="shipInfo"></div>
+</center>
+
+<script>
+//Ship//
+var posLeft=350;
+var posTop=450;
+var moveSpeed=1;
+var shipWidth=48;
+var shipHeight=45;
+//Timers for ship movement
+var leftTimer;
+var rightTimer;
+var upTimer;
+var downTimer;
+var shipMooving=false;
+
+//Projectile//
+var posTopProjectile=0;
+var posLeftProjectle=0;
+var projectileSpeed=2;
+var projectileActive=false;
+var ammunition=30;
+
+//Rocks//
+var rockTimerStarted=false;
+var numberOfRocks=0;
+var maxNumberOfRocks=20;
+var time=0;
+var posLeftRocks=[];
+var posTopRocks=[];
+var speedRocks=3;
+var rockWidth=56;
+var rockHeight=55;
+var rockSpeed=1;
+
+//Screen//
+var screenWidth=800;
+var screenHeight=600;
+
+
+//Initialization of ship
+var ship = document.getElementById("ship");
+ship.style.top = posTop + "px";
+ship.style.left = posLeft + "px";
+moveProjectile();
+///
+
+//Initialization of rocks
+for (i=0;i<maxNumberOfRocks;i++)
+{
+	posLeftRocks[i]=-1;
+	posTopRocks[i]=0;
+}
+
+function moveShipRight(){
+
+	var ship = document.getElementById("ship");
+	if(posLeft <= screenWidth - shipWidth ){
+		posLeft+=moveSpeed;
+		ship.style.left = posLeft + "px";
+	}else{
+	clearInterval(rightTimer);}
+	moveProjectile();
+}
+function moveShipLeft(){
+
+	var ship = document.getElementById("ship");
+	var initialPos = ship.style.left;
+	var pos = initialPos;
+	if(posLeft >= 0){
+		posLeft-=moveSpeed;
+		ship.style.left = posLeft + "px";
+	}else{
+	clearInterval(leftTimer);}
+	moveProjectile();
+}
+
+function moveShipUp(){
+
+	var ship = document.getElementById("ship");
+	var initialPos = ship.style.top;
+	var pos = initialPos;
+	if(posTop >= 0){
+		posTop-=moveSpeed;
+		ship.style.top = posTop + "px";
+	}else{
+	clearInterval(upTimer);}
+	moveProjectile();
+}
+
+function moveShipDown(){
+
+	var ship = document.getElementById("ship");
+	var initialPos = ship.style.top;
+	var pos = initialPos;
+	if(posTop <= screenHeight - shipHeight){
+		posTop+=moveSpeed;
+		ship.style.top = posTop + "px";
+	}else{
+	clearInterval(downTimer);}	
+	moveProjectile();
+}
+
+function speedUp(){
+	if(moveSpeed < 20){
+	
+	moveSpeed++;
+	}
+
+}
+
+function speedDown(){
+	if(moveSpeed > 2){
+		moveSpeed--;
+	}
+}
+
+function shoot(){
+
+	if(ammunition>0){
+		var projectile = document.getElementById("projectile");
+		posTopProjectile=posTop;
+		posLeftProjectle=posLeft;
+		info();
+		projectileActive=true;
+		ammunition--;
+		var id = setInterval(frame, 5);
+		function frame(){
+			info();
+			if(posTopProjectile==0){
+			
+				projectile.style.top = posTop + "px";
+				projectile.style.left = posLeft+ "px";
+				clearInterval(id);
+				projectileActive=false;
+			}
+			else{
+				posTopProjectile-=projectileSpeed;
+				projectile.style.top = posTopProjectile + "px";
+			
+			}
+		
+		
+		
+		}
+	}
+	
+}
+//Moves projectile with ship
+function moveProjectile(){
+	if(!projectileActive){
+		posTopProjectile=posTop;
+		posLeftProjectle=posLeft;
+		projectile.style.top = posTop + "px";
+		projectile.style.left = posLeft + "px";
+		info();
+	}
+
+}
+
+function createRock(i)
+{
+	var rockNumber=i;
+		var rock = document.createElement("DIV");
+		rock.id = rockNumber;
+		rock.className = "rock";		
+		var div = document.getElementById("screen");
+		div.appendChild(rock);	
+
+}
+
+
+function moveRocks(){
+	time++;
+	if(time%5000==0){
+		rockSpeed++;		
+	}
+	
+	if(numberOfRocks<maxNumberOfRocks)
+	{
+		if(time%1000==0){
+			createRock(numberOfRocks);
+			numberOfRocks++;
+		}
+	}
+	
+	for(i=0;i<numberOfRocks;i++)
+	{
+		var rock = document.getElementById(i);
+		if(posLeftRocks[i]==-1)
+		{
+			posLeftRocks[i]=getRandomInt(0,screenWidth-rockWidth);
+			rock.style.left = posLeftRocks[i] + "px";
+			
+			
+		}
+		else if(posTopRocks[i]<screenHeight-rockHeight)
+		{
+			posTopRocks[i]+=rockSpeed;
+			rock.style.top = posTopRocks[i] + "px";
+			
+		}
+		else
+		{
+			posTopRocks[i]=0;
+			posLeftRocks[i]=-1;
+		}
+	}
+	
+	info();
+}
+
+function collisionDetection(x1,y1,x2,y2,x1s,y1s,x2s,y2s)
+{
+	if(y1>y2s && y2<y2s){
+		
+	}
+	if(x1<x1s && x1s<x2){
+		
+	}
+}
+
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function info(){
+
+	//Test
+	var info = document.getElementById("shipInfo");
+	info.innerHTML = "<p>Pozicija broda: <br>X: " + posLeft + " Y: " + posTop + "<br>Pozicija projektila: <br>X: " + posLeftProjectle + " Y: " + posTopProjectile + "</p>";
+	info.innerHTML +="<p>Municija: " + ammunition + "</p>";
+	info.innerHTML +="<p>Vrijeme: " + time + "</p>";
+	
+	//
+}
+document.onkeyup = function(e2) {
+	switch (e2.keyCode) {
+		case 37:
+            //alert('left');
+			clearInterval(leftTimer);
+			shipMooving=false;
+			//moveShipLeft();
+            break;
+        case 38:
+            //alert('up');
+			clearInterval(upTimer);
+			shipMooving=false;
+			//moveShipUp();
+            break;
+        case 39:
+            //alert('right');
+			clearInterval(rightTimer);
+			shipMooving=false;
+			//moveShipRight();
+            break;
+        case 40:
+            //alert('down');
+			clearInterval(downTimer);
+			shipMooving=false;
+			//moveShipDown();
+            break;
+		default:
+			break;
+			
+	}
+}
+
+document.onkeydown = function(e) {
+
+	if(rockTimerStarted==false){
+		var rockTimer = setInterval(moveRocks, 10);
+		rockTimerStarted=true;
+		}
+	
+    switch (e.keyCode) {
+        case 37:
+            //alert('left');
+			if(shipMooving==false){
+				leftTimer = setInterval(moveShipLeft, 10);
+				shipMooving=true;
+				}
+			//moveShipLeft();
+            break;
+        case 38:
+            //alert('up');
+			if(shipMooving==false){
+				upTimer = setInterval(moveShipUp, 10);
+				shipMooving=true;
+				}
+			//moveShipUp();
+            break;
+        case 39:
+            //alert('right');
+			if(shipMooving==false){
+				rightTimer = setInterval(moveShipRight, 10);
+				shipMooving=true;
+				}
+			//moveShipRight();
+            break;
+        case 40:
+            //alert('down');
+			if(shipMooving==false){
+				downTimer = setInterval(moveShipDown, 10);
+				shipMooving=true;
+				}
+			//moveShipDown();
+            break;
+		case 32:			
+			//Space
+			//alert('shoot');
+			shoot();			
+			break;
+		case 16:
+			//LShift
+			speedUp();
+			break;
+		case 17:
+			//LControl			
+			speedDown();			
+			break;
+		default:
+			break;
+    }
+};
+
+</script>
+</body>
+</head>
+</html>
